@@ -4,6 +4,7 @@ import { RootState } from "../store";
 
 const baseQuery = fetchBaseQuery({
     baseUrl: "http://localhost:5000",
+    // baseUrl: "https://dish-directory.vercel.app",
 
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
@@ -17,6 +18,6 @@ const baseQuery = fetchBaseQuery({
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQuery,
-  tagTypes: [ "auth"],
+  tagTypes: [ "auth", "user", "recipe"],
   endpoints: () => ({}),
 });

@@ -5,25 +5,28 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Hook to get current path
+import { usePathname, useRouter } from "next/navigation"; 
 import Image from "next/image";
 
 const Navbar = () => {
   const user = useAppSelector((state: RootState) => state.auth.userData);
   const dispatch = useAppDispatch();
-  const pathname = usePathname(); // Get current route path
+  const pathname = usePathname(); 
+  const router = useRouter()
 
   const handleLogOut = () => {
     dispatch(logout());
+    router.push("/login")
+
   };
 
   const navigationButton = (
-    <ul>
+    <>
       <li className="text-white font-medium uppercase text-lg m-3">
         <Link
           href="/"
           className={`${
-            pathname === "/" ? "text-[#03AED2] border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1" : ""
+            pathname === "/" ? " border-2 border-[#03AED2] rounded-tl-xl text-white rounded-br-xl p-1" : ""
           }`}
         >
           home
@@ -33,7 +36,7 @@ const Navbar = () => {
         <Link
           href="/about"
           className={`${
-            pathname === "/about" ? "text-[#03AED2] border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1" : ""
+            pathname === "/about" ? "text-white border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1" : ""
           }`}
         >
           about
@@ -43,7 +46,7 @@ const Navbar = () => {
         <Link
           href="/contact"
           className={`${
-            pathname === "/contact" ? "text-[#03AED2] border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1" : ""
+            pathname === "/contact" ? "text-white border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1" : ""
           }`}
         >
           contact
@@ -55,7 +58,7 @@ const Navbar = () => {
             href="/dashboard"
             className={`${
               pathname === "/dashboard"
-                ? "text-[#03AED2] border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1"
+                ? "text-white border-2 border-[#03AED2] rounded-tl-xl rounded-br-xl p-1"
                 : ""
             }`}
           >
@@ -63,32 +66,33 @@ const Navbar = () => {
           </Link>
         </li>
       )}
-    </ul>
+    </>
   );
 
-  const [isScrolled, setIsScrolled] = useState(false);
+
+  const [isMounted, setIsMounted] = useState(false); 
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY >= 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    setIsMounted(true); 
   }, []);
+
+  
+
+  if (!isMounted) {
+   
+    return null;
+  }
 
   return (
     <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-3000 ease-in-out ${
-        isScrolled
-          ? "bg-gradient-to-l from-[#083f53] to-[#1c9991] border-b-[1px] border-slate-400"
-          : "bg-transparent border-none"
-      }`}
+      className="fixed top-0 w-full z-50  bg-gradient-to-l from-[#083f53] to-[#1c9991] border-b-[1px] border-slate-400"
+          
+      
     >
       <div className="navbar bg-transparent">
         <div className="navbar-start">
           <div className="dropdown">
-            <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+            <button tabIndex={0} className="btn btn-ghost lg:hidden" aria-label="Menu">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
@@ -103,7 +107,7 @@ const Navbar = () => {
                   d="M4 6h16M4 12h8m-8 6h16"
                 />
               </svg>
-            </div>
+            </button>
             <ul
               tabIndex={0}
               className="menu menu-sm dropdown-content bg-[#1c9991] rounded-box z-[50] mt-3 w-52 p-2 shadow"
@@ -115,12 +119,12 @@ const Navbar = () => {
           <div>
             <Link href="/">
               <Image
-              src="https://i.ibb.co.com/JcVyrjg/Screenshot-3.png"
-              height={60}
-              width={60}
-              className="rounded-full"
-              alt="logo"
-              ></Image>
+                src="https://i.ibb.co.com/0G2QF9N/Screenshot-12.png"
+                height={60}
+                width={60}
+                className="rounded-full"
+                alt="logo"
+              />
             </Link>
           </div>
         </div>

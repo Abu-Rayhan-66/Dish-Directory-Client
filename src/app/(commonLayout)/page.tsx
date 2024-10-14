@@ -5,7 +5,6 @@ const CommonLayoutPage = () => {
     return (
         <div>
             <Banner></Banner>
-            <Banner></Banner>
         </div>
     );
 };

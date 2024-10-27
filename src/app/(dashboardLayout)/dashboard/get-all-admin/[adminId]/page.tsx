@@ -1,6 +1,7 @@
 "use client"
 
 import { useSingleAdminQuery, useUpdateAdminMutation } from "@/redux/features/user/userApi";
+import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -17,6 +18,7 @@ const UpdateAdmin = ({params}:{params:{adminId:string}} ) => {
     const { data, isLoading, error } = useSingleAdminQuery(params.adminId);
     const adminData = data?.data
     const [updateAdmin] = useUpdateAdminMutation()
+    const router = useRouter()
     console.log(data)
 
     const {
@@ -39,6 +41,7 @@ const UpdateAdmin = ({params}:{params:{adminId:string}} ) => {
           console.log(formData);
           updateAdmin({data:formData, id:adminData._id});
           toast.success("Admin updated successfully", { id: toastId });
+          router.push("/dashboard/get-all-admin");
         } catch (err) {
             console.log(err)
           toast.error("Something went Wrong", { id: toastId });

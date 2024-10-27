@@ -5,7 +5,7 @@ import { RootState } from '@/redux/store';
 import React, { useEffect, useState } from 'react';
 
 const Page = () => {
-  const user = useAppSelector((state: RootState) => state.auth.userData);
+  const user = useAppSelector((state: RootState) => state.auth.user);
   const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {

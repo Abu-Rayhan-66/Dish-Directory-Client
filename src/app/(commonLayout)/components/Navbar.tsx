@@ -3,13 +3,14 @@
 import { logout } from "@/redux/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation"; 
 import Image from "next/image";
+import { useSingleUserQuery } from "@/redux/features/user/userApi";
 
 const Navbar = () => {
-  const user = useAppSelector((state: RootState) => state.auth.userData);
+  const user = useAppSelector((state: RootState) => state.auth.user);
+  const { data, isLoading,  } = useSingleUserQuery(user?.id);
   const dispatch = useAppDispatch();
   const pathname = usePathname(); 
   const router = useRouter()
@@ -69,19 +70,12 @@ const Navbar = () => {
     </>
   );
 
-
-  const [isMounted, setIsMounted] = useState(false); 
-
-  useEffect(() => {
-    setIsMounted(true); 
-  }, []);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   
 
-  if (!isMounted) {
-   
-    return null;
-  }
 
   return (
     <nav
@@ -115,7 +109,7 @@ const Navbar = () => {
               {navigationButton}
             </ul>
           </div>
-          {user ? <a className="btn btn-ghost text-xl text-white">{user.name}</a> : ""}
+          {user ? <a className="btn btn-ghost text-xl text-white">{data?.data?.name}</a> : ""}
           <div>
             <Link href="/">
               <Image

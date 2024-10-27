@@ -5,25 +5,23 @@ import { RootState } from "../../store";
 
 export interface User {
  
-  _id: string;
-  name: string;
-  email: string;
-  password: string;
-  image: string;
-  role:string
+  id: string;
+  role: string;
+ 
+ 
  
 }
+
 
 type TAuthState = {
   user: User | null;
   token: string | null;
-  userData: User | null;
+  
 };
 
 const initialState: TAuthState = {
     user: null,
     token: null,
-    userData:null,
   };
 
 const authSlice = createSlice({
@@ -31,15 +29,14 @@ const authSlice = createSlice({
     initialState,
     reducers: {
       setUser: (state, action) => {
-        const { user, token, userData } = action.payload;
+        const { user, token } = action.payload;
         state.user = user;
         state.token = token;
-        state.userData = userData
+    
       },
       logout: (state) => {
         state.user = null;
         state.token = null;
-        state.userData = null;
       },
     },
   });

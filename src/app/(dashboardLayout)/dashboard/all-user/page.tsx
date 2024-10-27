@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 import { useAllUserQuery, useBlockUserMutation, useDeleteUserMutation, useUnblockUserMutation } from '@/redux/features/user/userApi';
 import { toast } from 'sonner';

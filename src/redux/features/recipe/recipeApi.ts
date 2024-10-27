@@ -12,21 +12,24 @@ const recipeApi = baseApi.injectEndpoints({
         }),
 
         allRecipe: builder.query({
-            query:()=>({
-              url:`/api/recipe`,
+            query:(id)=>({
+              url:`/api/recipe/${id}`,
               method:'GET',
               
             }),
               providesTags: ["recipe"],
           }),
+
         allRecipeForAdmin: builder.query({
             query:()=>({
-              url:`/api/recipe/admin`,
+              url:`/api/recipe/admin-recipe`,
               method:'GET',
               
             }),
               providesTags: ["recipe"],
           }),
+
+
         singleRecipe: builder.query({
             query:(id)=>({
               url:`/api/recipe/${id}`,
@@ -41,7 +44,7 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
               body:data
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
           }),
           editComment: builder.mutation({
             query:({data,userId, recipeId})=>({
@@ -49,7 +52,15 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
               body:data
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
+          }),
+
+          deleteComment: builder.mutation({
+            query:({recipeId,id})=>({
+              url:`/api/recipe/delete-comment/${recipeId}/${id}`,
+              method:'DELETE',
+            }),
+            invalidatesTags: ["recipe"],
           }),
 
           upVote: builder.mutation({
@@ -58,7 +69,7 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
              
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
           }),
 
           downVote: builder.mutation({
@@ -67,7 +78,7 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
              
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
           }),
 
           rating: builder.mutation({
@@ -76,7 +87,7 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
              body:data
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
           }),
           publishRecipe: builder.mutation({
             query:(id)=>({
@@ -84,7 +95,7 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
         
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
           }),
 
           unpublishRecipe: builder.mutation({
@@ -93,7 +104,7 @@ const recipeApi = baseApi.injectEndpoints({
               method:'PATCH',
         
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
           }),
 
           deleteRecipe: builder.mutation({
@@ -102,7 +113,17 @@ const recipeApi = baseApi.injectEndpoints({
               method:'DELETE',
         
             }),
-            invalidatesTags: ["user"],
+            invalidatesTags: ["recipe"],
+          }),
+
+          updateRecipe: builder.mutation({
+            query:({formData,id})=>({
+              url:`/api/recipe/update-recipe/${id}`,
+              method:'PATCH',
+              body:formData
+        
+            }),
+            invalidatesTags: ["recipe"],
           }),
 
 
@@ -118,11 +139,13 @@ export const {
     useSingleRecipeQuery,
     useAddCommentMutation,
     useEditCommentMutation,
+    useDeleteCommentMutation,
     useUpVoteMutation,
     useDownVoteMutation,
     useRatingMutation,
     usePublishRecipeMutation,
     useUnpublishRecipeMutation,
-    useDeleteRecipeMutation
+    useDeleteRecipeMutation,
+    useUpdateRecipeMutation
 
 } = recipeApi

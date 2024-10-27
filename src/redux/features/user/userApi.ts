@@ -13,19 +13,19 @@ const userApi = baseApi.injectEndpoints({
         }),
 
         followUser: builder.mutation({
-          query:({data,id})=>({
+          query:(id)=>({
             url:`/api/auth/follow-user/${id}`,
             method:'PATCH',
-            body:data
+            
           }),
           invalidatesTags: ["user"],
         }),
 
         unFollowUser: builder.mutation({
-          query:({data,id})=>({
+          query:(id)=>({
             url:`/api/auth/unfollow-user/${id}`,
             method:'PATCH',
-            body:data
+           
           }),
           invalidatesTags: ["user"],
         }),
@@ -52,6 +52,27 @@ const userApi = baseApi.injectEndpoints({
           query:(id)=>({
             url:`/api/auth/user-with-recipe/${id}`,
             method:'GET',
+            
+          }),
+            providesTags: ["user"],
+        }),
+
+        userPostedRecipe: builder.query({
+          query:({searchTerm = "", minPrice = "", maxPrice = "",page, limit, sortBy, sortOrder })=>({
+            url:`/api/auth/posted-recipe`,
+            params: { searchTerm, minPrice, maxPrice, page, limit, sortBy, sortOrder },
+            method:'GET',
+            
+            
+          }),
+            providesTags: ["user"],
+        }),
+
+        singleUserWithEmail: builder.query({
+          query:(data)=>({
+            url:`/api/user-with-email`,
+            method:'GET',
+            body:data
             
           }),
             providesTags: ["user"],
@@ -121,6 +142,47 @@ const userApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["user"],
           }),
+
+          changePassword: builder.mutation({
+            query:(data)=>({
+              url:`/api/password/change-password`,
+              method:'PATCH',
+              body:data
+            }),
+            invalidatesTags: ["user"],
+          }),
+
+          forgotPassword: builder.mutation({
+            query:(data)=>({
+              url:`/api/password/forgot-password`,
+              method:'PATCH',
+              body:data
+            }),
+            invalidatesTags: ["user"],
+          }),
+         
+          resetPassword: builder.mutation({
+            query:({data, yourToken})=>({
+              url:`/api/password/reset-password`,
+              method:'PATCH',
+              body:data,
+              headers: {
+               
+                Authorization: `${yourToken}`, 
+                'Content-Type': 'application/json',   
+              },
+            }),
+            invalidatesTags: ["user"],
+          }),
+
+          getPremium: builder.mutation({
+            query:(id)=>({
+              url:`/api/payment/make-payment/${id}`,
+              method:'PATCH',
+             
+            }),
+            invalidatesTags: ["user"],
+          }),
          
 
 
@@ -133,8 +195,10 @@ export const {
     useFollowUserMutation,
     useUnFollowUserMutation,
     useSingleUserQuery,
+    useSingleUserWithEmailQuery,
     useAllUserQuery,
     useUserWithPostedRecipeQuery,
+    useUserPostedRecipeQuery,
     useBlockUserMutation,
     useUnblockUserMutation,
     useDeleteUserMutation,
@@ -142,6 +206,10 @@ export const {
     useAllAdminQuery,
     useSingleAdminQuery,
     useUpdateAdminMutation,
-    useDeleteAdminMutation
+    useDeleteAdminMutation,
+    useChangePasswordMutation,
+    useForgotPasswordMutation,
+    useResetPasswordMutation,
+    useGetPremiumMutation
 
 } = userApi

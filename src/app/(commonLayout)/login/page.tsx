@@ -18,6 +18,7 @@ type Inputs = {
 const Login = () => {
   const dispatch = useAppDispatch();
   const [login] = useLoginUserMutation();
+
   const router = useRouter()
 
   const {
@@ -29,15 +30,17 @@ const Login = () => {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
    const toastId =  toast.loading("Logging in...");
     try {
+
+
+      
       const res = await login(data).unwrap();
-      console.log("userData", res.data);
       const user = verifyToken(res.token);
-      dispatch(setUser({ user: user, token: res.token, userData: res.data }));
+      dispatch(setUser({ user: user, token: res.token}));
       toast.success("logged in",{id:toastId});
       router.push("/");
-    } catch (err) {
-        console.log(err)
-      toast.error("Something went wrong", {id:toastId});
+    } catch (error) {
+        console.log(error)
+      toast.error("You Have no right to login", {id:toastId});
     }
   };
   return (
@@ -83,6 +86,9 @@ const Login = () => {
               </label>
             </div>
             <div className="form-control ">
+              <Link className="mb-4" href={"/forgot-password"}>
+              <button>Forgot password</button>
+              </Link>
               <button type="submit" className="py-1 px-4  text-white rounded-tl-md rounded-br-md bg-[#03AED2] text-lg font-medium">
                 Login
               </button>

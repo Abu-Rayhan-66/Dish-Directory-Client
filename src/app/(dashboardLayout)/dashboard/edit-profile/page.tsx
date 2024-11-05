@@ -19,6 +19,7 @@ const EditProfile = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
   const id = user?.id
   const { data, isLoading, error } = useSingleUserQuery(id);
+  console.log("edit profile", data?.data)
   const userData = data?.data
   const [editProfile] = useUpdateUserMutation();
   

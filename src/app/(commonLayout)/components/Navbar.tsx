@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation"; 
 import Image from "next/image";
 import { useSingleUserQuery } from "@/redux/features/user/userApi";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const user = useAppSelector((state: RootState) => state.auth.user);
@@ -16,6 +17,7 @@ const Navbar = () => {
   const router = useRouter()
 
   const handleLogOut = () => {
+    Cookies.remove("access_token");
     dispatch(logout());
     router.push("/login")
 

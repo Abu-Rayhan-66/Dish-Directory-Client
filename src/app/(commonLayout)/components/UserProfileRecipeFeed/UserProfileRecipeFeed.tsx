@@ -4,6 +4,7 @@ import {
   useAddCommentMutation,
   useDeleteCommentMutation,
   useDownVoteMutation,
+  useEditCommentMutation,
   useUpVoteMutation,
 } from "@/redux/features/recipe/recipeApi";
 import { useAppSelector } from "@/redux/hooks";
@@ -16,6 +17,7 @@ import { BiSolidDislike } from "react-icons/bi";
 import ReactStars from "react-stars";
 import RecipePostedTime from "@/app/(dashboardLayout)/components/RecipePostedTime/RecipePostedTime";
 import { useSingleUserQuery, useUserWithPostedRecipeQuery } from "@/redux/features/user/userApi";
+import { IoMdClock } from "react-icons/io";
 
 
 type TUser = {
@@ -42,6 +44,7 @@ type TRecipe = {
   _id: string;
   title: string;
   image: string;
+  cookingTime:string;
   user: TUser;
   createdAt: string;
   isPremium: boolean;
@@ -57,17 +60,19 @@ const UserProfileRecipeFeed = ({params}:{params:string}) => {
   const user = useAppSelector((state: RootState) => state.auth.user);
   const { data:onlyUserData,   } = useSingleUserQuery(user?.id);
   const { data, isLoading, error, refetch } = useUserWithPostedRecipeQuery(params);
+  console.log("params", params)
   const userProfile = data?.data?.userData
-  console.log("user profile recipe", data?.data)
   const [upVote] = useUpVoteMutation();
   const [downVote] = useDownVoteMutation();
   const [comment] = useAddCommentMutation();
+  const [editComment] = useEditCommentMutation();
   const [deleteComment] = useDeleteCommentMutation();
 
   const handleUpVote = (id: string) => {
     const toastId = toast.loading("Adding Upvote");
     try {
       upVote(id);
+      refetch();
       toast.success("Upvote added", { id: toastId });
     } catch (error) {
       console.log(error);
@@ -79,6 +84,7 @@ const UserProfileRecipeFeed = ({params}:{params:string}) => {
     const toastId = toast.loading("Adding Downvote");
     try {
       downVote(id);
+      refetch();
       toast.success("Downvote added", { id: toastId });
     } catch (error) {
       console.log(error);
@@ -107,14 +113,56 @@ const UserProfileRecipeFeed = ({params}:{params:string}) => {
     }
   };
 
+  const handleEditComment = (
+    e: React.FormEvent<HTMLFormElement>,
+    recipeId: string,
+    id: string
+  ) => {
+    e.preventDefault();
+    const commentInput = e.currentTarget.comment.value;
+
+    const data = {
+      comment: commentInput,
+    };
+
+    const toastId = toast.loading("Editing comment");
+    try {
+      editComment({ data, recipeId: recipeId, commentId: id });
+      refetch();
+      toast.success("Comment edited", { id: toastId });
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong", { id: toastId });
+    }
+  };
+
   const handleDeleteComment = (recipeId: string, commentId: string) => {
     const toastId = toast.loading("Deleting comment");
     try {
       deleteComment({ recipeId, id: commentId });
+      refetch();
       toast.success("Comment deleted", { id: toastId });
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong", { id: toastId });
+    }
+  };
+
+  const openEditCommentModal = (modalId: string) => {
+    const modal = document.getElementById(modalId) as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    } else {
+      console.error("Modal element not found");
+    }
+  };
+
+  const closeEditCommentModal = (modalId: string) => {
+    const modal = document.getElementById(modalId) as HTMLDialogElement;
+    if (modal) {
+      modal.close();
+    } else {
+      console.error("Modal element not found");
     }
   };
 
@@ -141,7 +189,7 @@ const UserProfileRecipeFeed = ({params}:{params:string}) => {
   }
 
   if (error) {
-    return <div>No user found</div>;
+    return <div>No Post found</div>;
   }
 
   if (!data || !data.data || data.data.length === 0) {
@@ -224,7 +272,7 @@ const UserProfileRecipeFeed = ({params}:{params:string}) => {
                   <BiSolidLike
                     className={`mr-1 text-2xl ${
                       item.upvote.includes(user?.id)
-                        ? "text-red-500"
+                        ? "text-[#03AED2]"
                         : "text-black"
                     }`}
                   />{" "}
@@ -237,80 +285,152 @@ const UserProfileRecipeFeed = ({params}:{params:string}) => {
                   <BiSolidDislike
                     className={`mr-1 text-2xl ${
                       item.downvote.includes(user?.id)
-                        ? "text-red-500"
+                        ? "text-[#03AED2]"
                         : "text-black"
                     }`}
                   />{" "}
                   {item?.downvote?.length}
                 </button>
-              </div>
-              <div className="flex items-center text-gray-600 hover:text-green-600">
-                <button className="btn " onClick={() => openModal(`modal_${item._id}`)}>
-                  <FaCommentDots className="mr-1" />
-                  {item.comments.length} Comment
-                </button>
-
-                <dialog
-                   id={`modal_${item._id}`}
-                  className="modal modal-bottom sm:modal-middle"
-                >
-                  <div className="modal-box flex flex-col">
-                    <div className="flex justify-between">
-                      <h2>{item.user.name}s Post</h2>
-                      <button onClick={() => closeModal(`modal_${item._id}`)}>X</button>
-                    </div>
-
-                    <div className="py-4 flex-grow overflow-y-auto">
-                      {item?.comments?.map((comment) => (
-                        <div className="" key={comment._id}>
-                          <p className=" ml-12">{comment.name}</p>
-                          <div className="flex gap-2 items-start">
-                            <img
-                              className="size-10 rounded-full"
-                              src={comment.profilePicture}
-                              alt=""
-                            />
-                            <p className="bg-base-300 p-2 mb-4">
-                              {comment.comment}
-                            </p>
-                          </div>
-                          {user?.id === comment.id && (
-                            <div className="mb-3 ml-12">
-                              <button className="">Edit</button>
-                              <button
-                                onClick={() =>
-                                  handleDeleteComment(item._id, comment._id)
-                                }
-                                className="ml-3"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-auto">
-                      <form
-                        onSubmit={(e) => handleComment(e, item._id)}
-                        method="dialog"
-                        className="flex"
-                      >
-                        <input
-                          type="text"
-                          placeholder="Add a comment..."
-                          className="input input-bordered w-full"
-                          name="comment"
-                        />
-                        <button type="submit" className="btn ml-2">
-                          Submit
-                        </button>
-                      </form>
-                    </div>
+                <div className="flex gap-1">
+                  <IoMdClock className="text-2xl"></IoMdClock>
+                  <h2>{item?.cookingTime} mins</h2>
                   </div>
-                </dialog>
               </div>
+              <div className="flex items-center text-gray-600 ">
+                  <Link  href={`/recipe-details/${item._id}`}>
+                    <button
+                      className={` p-3 rounded-md bg-base-300 mr-2 text-black`}
+                      >{ onlyUserData?.data?.premiumMembership === false && item.isPremium === true ? <Link href={"/dashboard/get-premium"}><button>Get premium to view </button></Link>:"View Details"}
+                      </button>
+                  </Link>
+                  <button
+                    className="btn "
+                    onClick={() => openModal(`modal_${item._id}`)}
+                  >
+                    <FaCommentDots className="mr-1" />
+                    {item.comments.length} Comment
+                  </button>
+
+                  <dialog
+                    id={`modal_${item._id}`}
+                    className="modal modal-bottom sm:modal-middle"
+                  >
+                    <div className="modal-box flex flex-col">
+                      <div className="flex justify-between">
+                        <h2>{item.user.name}s Post</h2>
+                        <button className="text-2xl" onClick={() => closeModal(`modal_${item._id}`)}>
+                          X
+                        </button>
+                      </div>
+
+                      <div className="py-4 flex-grow overflow-y-auto">
+                        {item?.comments?.map((comment) => (
+                          <div className="" key={comment?._id}>
+                            <p className=" ml-12">{comment?.name}</p>
+                            <div className="flex gap-2 items-start">
+                              <img
+                                className="size-10 rounded-full"
+                                src={comment?.profilePicture}
+                                alt=""
+                              />
+                              <p className="bg-base-300 p-2 mb-4">
+                                {comment?.comment}
+                              </p>
+                            </div>
+                            {user?.id === comment?.id && (
+                              <div className="mb-3 ml-12">
+                                <button
+                                  className=""
+                                  onClick={() =>
+                                    openEditCommentModal(
+                                      `modal_${comment?._id}`
+                                    )
+                                  }
+                                >
+                                  Edit
+                                </button>
+                                <dialog
+                                  id={`modal_${comment?._id}`}
+                                  className="modal modal-bottom sm:modal-middle"
+                                >
+                                  <div className="modal-box">
+                                  <button
+                                      className=" text-2xl justify-end mb-4 inline-block  text-right"
+                                        onClick={() =>
+                                          closeEditCommentModal(
+                                            `modal_${comment._id}`
+                                          )
+                                        }
+                                      >
+                                        X
+                                      </button>
+                                    <form
+                                      onSubmit={(e) =>
+                                        handleEditComment(
+                                          e,
+                                          item._id,
+                                          comment?._id
+                                        )
+                                      }
+                                      method="dialog"
+                                      className="flex"
+                                    >
+                                     
+                                      <input
+                                        type="text"
+                                        defaultValue={comment?.comment}
+                                        placeholder="Add a comment..."
+                                        className="input input-bordered w-full"
+                                        name="comment"
+                                      />
+                                      <button
+                                        onClick={() =>
+                                          closeEditCommentModal(
+                                            `modal_${comment._id}`
+                                          )
+                                        }
+                                        type="submit"
+                                        className="btn ml-2"
+                                      >
+                                        Submit
+                                      </button>
+                                    </form>
+                                  </div>
+                                </dialog>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteComment(item._id, comment._id)
+                                  }
+                                  className="ml-3"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-auto">
+                        <form
+                          onSubmit={(e) => handleComment(e, item._id)}
+                          method="dialog"
+                          className="flex"
+                        >
+                          <input
+                            type="text"
+                            placeholder="Add a comment..."
+                            className="input input-bordered w-full"
+                            name="comment"
+                          />
+                          <button type="submit" className="btn ml-2">
+                            Submit
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </dialog>
+                </div>
             </div>
           </div>
         </div>

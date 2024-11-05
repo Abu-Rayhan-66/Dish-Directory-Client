@@ -7,6 +7,7 @@ import { verifyToken } from "@/utils/verifyToken";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
+import Cookies from "js-cookie";
 
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ const Login = () => {
       const res = await login(data).unwrap();
       const user = verifyToken(res.token);
       dispatch(setUser({ user: user, token: res.token}));
+      Cookies.set("access_token", res.token, { expires: 30 }); 
       toast.success("logged in",{id:toastId});
       router.push("/");
     } catch (error) {

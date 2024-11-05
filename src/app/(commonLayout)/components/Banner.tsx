@@ -14,7 +14,7 @@ const Banner = () => {
             <h2 className="text-[#03AED2] text-5xl font-medium uppercase mb-6 ">Welcome to Dish Directory</h2>
             <p className="text-white text-xl font-semibold ">Dish Directory is a <span className="text-[#03AED2] ">online recipe sharing Platform</span> where pe0ple can find different kinds of recipe <br />
              and they can learn how to cook the recipe. user can also share their favorite recipe to others</p>
-            <button className="mt-6  py-1 px-4 rounded-tl-md rounded-br-md bg-[#03AED2] text-xl font-medium text-white "><Link href={"/facility"} >Get Started</Link></button>
+            <button className="mt-6  py-1 px-4 rounded-tl-md rounded-br-md bg-[#03AED2] text-xl font-medium text-white "><Link href={"/dashboard/get-premium"} >Get Premium</Link></button>
         </div>
        
     </div>

@@ -12,8 +12,9 @@ const recipeApi = baseApi.injectEndpoints({
         }),
 
         allRecipe: builder.query({
-            query:(id)=>({
-              url:`/api/recipe/${id}`,
+            query:({searchTerm = "", minPrice = "", maxPrice = "",page, limit, sortBy, sortOrder, id})=>({
+              url:`/api/recipe/user-recipe`,
+              params: { searchTerm, minPrice, maxPrice, page, limit, sortBy, sortOrder, id },
               method:'GET',
               
             }),
@@ -32,7 +33,7 @@ const recipeApi = baseApi.injectEndpoints({
 
         singleRecipe: builder.query({
             query:(id)=>({
-              url:`/api/recipe/${id}`,
+              url:`/api/recipe/single-recipe/${id}`,
               method:'GET',
               
             }),
@@ -47,8 +48,8 @@ const recipeApi = baseApi.injectEndpoints({
             invalidatesTags: ["recipe"],
           }),
           editComment: builder.mutation({
-            query:({data,userId, recipeId})=>({
-              url:`/api/recipe/edit-comment/${userId}/${recipeId}`,
+            query:({data, recipeId, commentId})=>({
+              url:`/api/recipe/edit-comment/${recipeId}/${commentId}`,
               method:'PATCH',
               body:data
             }),
@@ -82,10 +83,10 @@ const recipeApi = baseApi.injectEndpoints({
           }),
 
           rating: builder.mutation({
-            query:({data,id})=>({
+            query:({rating,id})=>({
               url:`/api/recipe/rating/${id}`,
               method:'PATCH',
-             body:data
+             body:rating
             }),
             invalidatesTags: ["recipe"],
           }),

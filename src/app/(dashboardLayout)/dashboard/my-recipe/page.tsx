@@ -21,8 +21,8 @@ const MyRecipe = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const { data, isLoading, error, refetch } = useUserPostedRecipeQuery({
@@ -43,7 +43,7 @@ const MyRecipe = () => {
     setCurrentPage(1);
   };
 
-  // Removed the duplicate declaration here
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };

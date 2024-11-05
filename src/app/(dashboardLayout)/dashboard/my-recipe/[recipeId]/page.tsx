@@ -6,7 +6,7 @@ import {
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useUserWithPostedRecipeQuery } from "@/redux/features/user/userApi";
 import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
@@ -16,41 +16,53 @@ const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 export type Inputs = {
   title: string;
   image: string;
+  ingredient: string;
+  description: string;
   type: string;
 };
 
 const UpdateRecipe = ({ params }: { params: { recipeId: string } }) => {
   const recipeId = params.recipeId;
   const [content, setContent] = useState("");
-  console.log("content", content);
+  const [ingredient, setIngredient] = useState("");
+  const [description, setDescription] = useState("");
   const editor = useRef(null);
   const user = useAppSelector((state: RootState) => state.auth.user);
   const [UpdateRecipe] = useUpdateRecipeMutation();
-  const {  refetch } = useUserWithPostedRecipeQuery(user?.id);
+  const { refetch } = useUserWithPostedRecipeQuery(user?.id);
   const { data, isLoading, error } = useSingleRecipeQuery(recipeId);
   const recipe = data?.data;
-  console.log(data);
+  const id = data?.data?._id;
+  console.log("idi")
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
 
+  useEffect(() => {
+    if (recipe) {
+      setContent(recipe.title || "");
+      setIngredient(recipe.ingredient || "");
+      setDescription(recipe.description || "");
+    }
+  }, [recipe]);
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     const toastId = toast.loading("Updating Recipe");
-
-    console.log(data);
 
     try {
       const formData = {
         title: content,
         image: data.image,
-        isPremium: data.type === "true" ? true : false,
+        isPremium: data.type === "true",
+        ingredient,
+        description,
       };
 
-      console.log(formData);
-      UpdateRecipe({ formData, recipeId });
-      refetch()
+      UpdateRecipe({ formData, id });
+      refetch();
       toast.success("Recipe updated successfully", { id: toastId });
     } catch (err) {
       console.log(err);
@@ -63,11 +75,7 @@ const UpdateRecipe = ({ params }: { params: { recipeId: string } }) => {
   }
 
   if (error) {
-    return <div>No user found</div>;
-  }
-
-  if (!data || !data.data || data.data.length === 0) {
-    return <div>No facilities found</div>;
+    return <div>No recipe found</div>;
   }
 
   return (
@@ -81,12 +89,34 @@ const UpdateRecipe = ({ params }: { params: { recipeId: string } }) => {
               </label>
               <JoditEditor
                 ref={editor}
-                value={recipe.title}
+                value={content}
                 onChange={(newContent) => setContent(newContent)}
               />
               <div className="h-2">
                 {errors.title && <span>Title is required</span>}
               </div>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Ingredient</span>
+              </label>
+              <JoditEditor
+                ref={editor}
+                value={ingredient}
+                onChange={(newIngredient) => setIngredient(newIngredient)}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Description</span>
+              </label>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                onChange={(newDescription) => setDescription(newDescription)}
+              />
             </div>
 
             <div className="form-control">
@@ -101,9 +131,7 @@ const UpdateRecipe = ({ params }: { params: { recipeId: string } }) => {
                 className="py-1 w-full rounded-md border-[2px] focus:border-[#1b918b] focus:outline-none border-[#03AED2]"
               />
               <div className="h-2">
-                {errors.image && (
-                  <span className="text-sm">Image is required</span>
-                )}
+                {errors.image && <span className="text-sm">Image is required</span>}
               </div>
             </div>
 
@@ -112,9 +140,8 @@ const UpdateRecipe = ({ params }: { params: { recipeId: string } }) => {
                 <span className="label-text">Select a type</span>
               </label>
               <select
-                defaultValue={recipe.isPremium}
+                defaultValue={recipe.isPremium ? "true" : "false"}
                 {...register("type", { required: true })}
-                id=""
               >
                 <option value="false">Free</option>
                 <option value="true">Premium</option>

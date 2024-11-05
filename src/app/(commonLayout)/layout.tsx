@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 
 
 export const metadata: Metadata = {
-  title: "Apollo Gears",
+  title: "Dish Directory",
   description: "Next Level Riding Sharing Service",
 };
 

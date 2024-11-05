@@ -4,7 +4,7 @@ import DashboardSidebar from "../DashboardSidebar";
 
 
 export const metadata: Metadata = {
-  title: "Dashboard - Apollo Gears",
+  title: "Dish Directory",
   description: "Next Level Riding Sharing Service",
 };
 

@@ -1,43 +1,45 @@
-"use client";
+"use client"
 import { useCreateRecipeMutation } from "@/redux/features/recipe/recipeApi";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import dynamic from "next/dynamic"; // For dynamic import of JoditEditor
 import { useRef, useState } from "react";
 
-// Dynamically import JoditEditor only on client-side
 const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
 
 export type Inputs = {
   title: string;
   image: string;
-  cookingTime:number;
+  cookingTime: number;
   type: string;
 };
 
 const CreateRecipe = () => {
   const [content, setContent] = useState('');
+  const [ingredient, setIngredient] = useState('');
+  const [description, setDescription] = useState('');
   const editor = useRef(null);
   const [createRecipe] = useCreateRecipeMutation();
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+  const ingredientConfig = {
+    placeholder: "e.g: Onion, Garlic, Salt...",
+    height: 200,
+   toolbar: true
+  };
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     const toastId = toast.loading("Creating Recipe");
 
-  console.log(data)
-
     try {
       const formData = {
-        title: content,  
+        title: content,
         image: data.image,
         cookingTime: Number(data.cookingTime),
-        isPremium: data.type === "true" ? true: false
-       
+        isPremium: data.type === "true",
+        ingredient,
+        description,
       };
 
-      // console.log(data)
-
-      console.log(formData);
       createRecipe(formData);
       toast.success("Recipe created successfully", { id: toastId });
     } catch (err) {
@@ -58,13 +60,37 @@ const CreateRecipe = () => {
               <JoditEditor
                 ref={editor}
                 value={content}
-                onChange={newContent => setContent(newContent)}
+                onChange={(newContent) => setContent(newContent)}
               />
               <div className="h-2">
                 {errors.title && <span>Title is required</span>}
               </div>
             </div>
 
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Ingredients</span>
+              </label>
+              <JoditEditor
+                ref={editor}
+                value={ingredient}
+                config={ingredientConfig}
+                onBlur={(newIngredient) => setIngredient(newIngredient)}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Description</span>
+              </label>
+              <JoditEditor
+                ref={editor}
+                value={description}
+                onChange={(newDescription) => setDescription(newDescription)}
+              />
+            </div>
+
+            {/* Other form fields */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Image</span>
@@ -76,9 +102,7 @@ const CreateRecipe = () => {
                 className="py-1 w-full rounded-md border-[2px] focus:border-[#1b918b] focus:outline-none border-[#03AED2]"
               />
               <div className="h-2">
-                {errors.image && (
-                  <span className="text-sm">Image is required</span>
-                )}
+                {errors.image && <span className="text-sm">Image is required</span>}
               </div>
             </div>
 
@@ -93,9 +117,7 @@ const CreateRecipe = () => {
                 className="py-1 w-full rounded-md border-[2px] focus:border-[#1b918b] focus:outline-none border-[#03AED2]"
               />
               <div className="h-2">
-                {errors.cookingTime && (
-                  <span className="text-sm">Cooking Time is required</span>
-                )}
+                {errors.cookingTime && <span className="text-sm">Cooking Time is required</span>}
               </div>
             </div>
 
@@ -103,14 +125,12 @@ const CreateRecipe = () => {
               <label className="label">
                 <span className="label-text">Select a type</span>
               </label>
-             <select   {...register("type", { required: true })} id="">
-              <option  value="false">Free</option>
-              <option value="true">Premium</option>
-             </select>
+              <select {...register("type", { required: true })}>
+                <option value="false">Free</option>
+                <option value="true">Premium</option>
+              </select>
               <div className="h-2">
-                {errors.type && (
-                  <span className="text-sm">Select a type</span>
-                )}
+                {errors.type && <span className="text-sm">Select a type</span>}
               </div>
             </div>
             <div className="form-control">

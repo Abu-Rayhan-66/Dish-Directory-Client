@@ -45,6 +45,9 @@ export async function middleware(  request:NextRequest){
     if(role === "user" && pathname === "/dashboard/get-premium"){
         return NextResponse.next()
     }
+    if(role === "user" && pathname === "/dashboard/edit-profile"){
+        return NextResponse.next()
+    }
 
 
     if(role === "admin" && pathname ===  "/dashboard"){
@@ -68,6 +71,10 @@ export async function middleware(  request:NextRequest){
     if(role === "admin" && pathname ===  "/dashboard/change-password"){
         return NextResponse.next()
     }
+    if(role === "admin" && pathname === "/dashboard/edit-profile"){
+        return NextResponse.next()
+    }
+
 
 
 
